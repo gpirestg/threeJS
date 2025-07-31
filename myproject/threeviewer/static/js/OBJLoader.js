@@ -1,0 +1,1 @@
+// Placeholder: Download actual OBJLoader.js from three.js examples

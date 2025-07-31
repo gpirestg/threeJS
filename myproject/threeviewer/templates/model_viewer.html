@@ -1,0 +1,73 @@
+<!-- templates/model_viewer.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TG Parametric Extrusion</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <h2>2D Shape Extruded Through Path</h2>
+  <label for="extrudeDepth">Extrusion Depth:</label>
+  <input type="range" id="extrudeDepth" min="1" max="50" value="10">
+
+  <div id="three-canvas" style="width: 100%; height: 400px;"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script>
+    let depth = 10;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 400, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, 400);
+    document.getElementById("three-canvas").appendChild(renderer.domElement);
+
+    const material = new THREE.MeshNormalMaterial();
+
+    function createExtrudedShape(depth) {
+      const shape = new THREE.Shape();
+      shape.moveTo(0, 0);
+      shape.lineTo(2, 0);
+      shape.lineTo(2, 2);
+      shape.lineTo(1, 3);
+      shape.lineTo(0, 3);
+      shape.lineTo(0, 0);
+
+      const extrudeSettings = {
+        steps: 1,
+        depth: depth,
+        bevelEnabled: false
+      };
+
+      return new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    }
+
+    let geometry = createExtrudedShape(depth);
+    let mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    // Set isometric-style camera position
+    camera.position.set(15, 15, 15);
+    camera.lookAt(0, 0, 0);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      mesh.rotation.x += 0.01;
+      mesh.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    document.getElementById("extrudeDepth").addEventListener("input", function (event) {
+      const newDepth = parseFloat(event.target.value);
+      scene.remove(mesh);
+      geometry.dispose();
+      geometry = createExtrudedShape(newDepth);
+      mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+    });
+  </script>
+</body>
+</html>
